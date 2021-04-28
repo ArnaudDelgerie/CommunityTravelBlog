@@ -5,9 +5,10 @@ namespace App\Controller\AuthUser;
 use App\Entity\Post;
 use App\Entity\PostImage;
 use App\Service\Base64Service;
+use App\Repository\PostRepository;
 use App\Repository\CountryRepository;
+use App\Serializer\Schema\PostSchema;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface as EntityManager;
@@ -22,17 +23,43 @@ class PostController extends AbstractController
     private $manager;
     private $validator;
     private $countryRepository;
+    private $postRepository;
     private $base64Service;
+    private $schema;
 
     public function __construct(
         EntityManager $manager,
         Validator $validator,
-        CountryRepository $countryRepository
+        PostRepository $postRepository,
+        CountryRepository $countryRepository,
+        PostSchema $schema
     ) {
         $this->manager = $manager;
         $this->validator = $validator;
+        $this->postRepository = $postRepository;
         $this->countryRepository = $countryRepository;
         $this->base64Service = new Base64Service();
+        $this->schema = $schema;
+    }
+
+    /**
+     * @Route("/user", methods={"GET"})
+     */
+    public function fetchUserPosts()
+    {
+        //get logged user
+        $loggedUser = $this->getUser();
+
+        //fetch user posts
+        $posts = $this->postRepository->findBy(["createdBy" => $loggedUser->getId()]);
+
+        //normailze user posts
+        $posts = $this->get("serializer")->normalize($posts, 'json', $this->schema->fetchUserPosts());
+
+        return new JsonResponse([
+            "success" => true,
+            "data" => $posts
+        ], 200);
     }
 
     /**
@@ -68,11 +95,6 @@ class PostController extends AbstractController
             }
         }
 
-        //check images data error
-        if (!isset($data["images"]) || !is_array($data["images"]) || count($data["images"]) < 1 || count($data["images"]) > 5) {
-            return new JsonResponse(["success" => false, "message" => "you must add between 1 and 5 images"], 401);
-        }
-
         //check and decode base64, create PostImage and set attributes
         $error = $this->decodeAndAddImage($data, $post);
         if ($error) {
@@ -88,6 +110,9 @@ class PostController extends AbstractController
 
     private function decodeAndAddImage($data, &$post)
     {
+        if (!isset($data["images"]) || !is_array($data["images"]) || count($data["images"]) < 1 || count($data["images"]) > 5) {
+            return "you must add between 1 and 5 images";
+        }
         $i = 0;
         foreach ($data["images"] as $image) {
             if (!isset($image["description"]) || !is_string($image["description"]) || strlen($image["description"]) < 1 || strlen($image["description"]) > 140) {
