@@ -60,6 +60,12 @@ class Post
      */
     private $postImages;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Country::class, inversedBy="posts")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $relatedCountry;
+
     public function __construct()
     {
         $this->postImages = new ArrayCollection();
@@ -180,6 +186,18 @@ class Post
                 $postImage->setPost(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRelatedCountry(): ?Country
+    {
+        return $this->relatedCountry;
+    }
+
+    public function setRelatedCountry(?Country $relatedCountry): self
+    {
+        $this->relatedCountry = $relatedCountry;
 
         return $this;
     }
