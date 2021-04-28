@@ -54,7 +54,6 @@ class UserController extends AbstractController
         $user->setActive(true);
 
         //check data error
-        $error = false;
         foreach ($this->validator->validate($user) as $violation) {
             if ($violation->getMessage()) {
                 return new JsonResponse(["success" => false, "message" => $violation->getMessage()], 400);
