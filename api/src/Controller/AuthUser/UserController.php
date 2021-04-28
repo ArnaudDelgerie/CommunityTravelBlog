@@ -142,7 +142,8 @@ class UserController extends AbstractController
         //user anonymization
         $loggedUser->setFirstname("Utilisateur");
         $loggedUser->setLastName("anonyme");
-        $loggedUser->setEmail(bin2hex(random_bytes(10)));
+        $loggedUser->setEmail(bin2hex(random_bytes(10)) . bin2hex(random_bytes(10)));
+        $loggedUser->setActive(false);
 
         //save in db
         $this->manager->persist($loggedUser);

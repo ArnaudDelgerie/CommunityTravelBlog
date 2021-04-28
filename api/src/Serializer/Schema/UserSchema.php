@@ -15,4 +15,30 @@ class UserSchema
             ]
         ];
     }
+
+    public function fetchUsers()
+    {
+        return [
+            "attributes" => [
+                "firstName",
+                "lastName",
+                "email",
+                "createdAt",
+                "active"
+            ]
+        ];
+    }
+
+    public function fetchUser()
+    {
+        return [
+            "attributes" => [
+                "firstName",
+                "lastName",
+                "email",
+                "createdAt",
+                "active"
+            ]
+        ];
+    }
 }
