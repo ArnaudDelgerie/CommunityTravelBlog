@@ -26,6 +26,10 @@ class User implements UserInterface
      * @Assert\NotBlank(message="email required")
      * @Assert\NotNull(message="email required")
      * @Assert\Email(message = "'{{ value }}' is not a valid email.")
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "email cannot be longer than {{ limit }} characters"
+     * )
      */
     private $email;
 
@@ -46,6 +50,10 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="first_name required")
      * @Assert\NotNull(message="first_name required")
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "first_name cannot be longer than {{ limit }} characters"
+     * )
      */
     private $firstName;
 
@@ -53,6 +61,10 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="last_name required")
      * @Assert\NotNull(message="last_name required")
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "last_name cannot be longer than {{ limit }} characters"
+     * )
      */
     private $lastName;
 

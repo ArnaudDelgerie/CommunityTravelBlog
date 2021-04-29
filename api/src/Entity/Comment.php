@@ -22,6 +22,10 @@ class Comment
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="content required")
      * @Assert\NotNull(message="content required")
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "content cannot be longer than {{ limit }} characters"
+     * )
      */
     private $content;
 

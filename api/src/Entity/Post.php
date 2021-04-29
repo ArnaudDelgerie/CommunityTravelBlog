@@ -24,6 +24,10 @@ class Post
      * @ORM\Column(type="string", length=100)
      * @Assert\NotBlank(message="title required")
      * @Assert\NotNull(message="title required")
+     * @Assert\Length(
+     *      max = 100,
+     *      maxMessage = "title cannot be longer than {{ limit }} characters"
+     * )
      */
     private $title;
 
