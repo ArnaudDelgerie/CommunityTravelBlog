@@ -31,6 +31,21 @@ class PostRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return Int Returns an nb total of posts
+     */
+    public function countActivePosts()
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.active = :active')
+            ->andWhere('p.validated = :validated')
+            ->setParameter('active', true)
+            ->setParameter('validated', true)
+            ->select('count(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
      * @return Int Returns an nb total of posts by country
      */
     public function countPostsByCountry($countryId)
@@ -38,6 +53,23 @@ class PostRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->andWhere('p.relatedCountry = :countryId')
             ->setParameter('countryId', $countryId)
+            ->select('count(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return Int Returns an nb total of posts by country
+     */
+    public function countActivePostsByCountry($countryId)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.relatedCountry = :countryId')
+            ->andWhere('p.active = :active')
+            ->andWhere('p.validated = :validated')
+            ->setParameter('countryId', $countryId)
+            ->setParameter('active', true)
+            ->setParameter('validated', true)
             ->select('count(p.id)')
             ->getQuery()
             ->getSingleScalarResult();

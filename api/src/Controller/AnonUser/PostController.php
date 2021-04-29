@@ -63,7 +63,7 @@ class PostController extends AbstractController
         $posts = $this->postRepository->findBy(["active" => true, "validated" => true], ["createdAt" => "DESC"], $this->nbResult, $offset);
 
         //calculates total number of pages
-        $nbPages = ceil($this->postRepository->countPosts() / $this->nbResult);
+        $nbPages = ceil($this->postRepository->countActivePosts() / $this->nbResult);
 
         //normalize posts
         $posts = $this->get("serializer")->normalize($posts, 'json', $this->schema->fetchUserPosts());
@@ -99,7 +99,7 @@ class PostController extends AbstractController
         $posts = $this->postRepository->findBy(["active" => true, "validated" => true, "relatedCountry" => $id], ["createdAt" => "DESC"], $this->nbResult, $offset);
 
         //calculates total number of pages
-        $nbPages = ceil($this->postRepository->countPostsByCountry($country->getId()) / $this->nbResult);
+        $nbPages = ceil($this->postRepository->countActivePostsByCountry($country->getId()) / $this->nbResult);
 
         //normalize posts
         $posts = $this->get("serializer")->normalize($posts, 'json', $this->schema->fetchUserPosts());
