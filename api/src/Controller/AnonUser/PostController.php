@@ -50,7 +50,7 @@ class PostController extends AbstractController
     /**
      * @Route("", methods={"GET"})
      */
-    public function fetchPosts(Request $request)
+    public function fetchActivePosts(Request $request)
     {
         //get or set page
         $page = $request->query->get("page");
@@ -80,7 +80,7 @@ class PostController extends AbstractController
     /**
      * @Route("/country/{id}", methods={"GET"})
      */
-    public function fetchPostsByCountry($id, Request $request)
+    public function fetchActivePostsByCountry($id, Request $request)
     {
         //check if country exist
         $country = $this->countryRepository->find($id);
