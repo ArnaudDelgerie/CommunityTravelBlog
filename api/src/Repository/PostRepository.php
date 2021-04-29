@@ -19,6 +19,30 @@ class PostRepository extends ServiceEntityRepository
         parent::__construct($registry, Post::class);
     }
 
+    /**
+     * @return Int Returns an nb total of posts
+     */
+    public function countPosts()
+    {
+        return $this->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return Int Returns an nb total of posts by country
+     */
+    public function countPostsByCountry($countryId)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.relatedCountry = :countryId')
+            ->setParameter('countryId', $countryId)
+            ->select('count(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     // /**
     //  * @return Post[] Returns an array of Post objects
     //  */

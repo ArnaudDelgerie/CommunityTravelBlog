@@ -22,4 +22,27 @@ class PostSchema
             ]
         ];
     }
+
+    public function fetchPost()
+    {
+        return [
+            "attributes" => [
+                "id",
+                "title",
+                "content",
+                "createdAt",
+                "validated",
+                "active",
+                "postImages" => [
+                    "id",
+                    "description",
+                    "image"
+                ],
+                "createdBy" => [
+                    "firstName",
+                    "lastName"
+                ]
+            ]
+        ];
+    }
 }
