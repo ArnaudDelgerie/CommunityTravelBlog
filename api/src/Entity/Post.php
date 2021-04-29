@@ -71,9 +71,15 @@ class Post
      */
     private $relatedCountry;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="relatedPost", orphanRemoval=true)
+     */
+    private $comments;
+
     public function __construct()
     {
         $this->postImages = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -203,6 +209,36 @@ class Post
     public function setRelatedCountry(?Country $relatedCountry): self
     {
         $this->relatedCountry = $relatedCountry;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setRelatedPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getRelatedPost() === $this) {
+                $comment->setRelatedPost(null);
+            }
+        }
 
         return $this;
     }
