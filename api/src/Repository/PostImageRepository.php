@@ -19,6 +19,19 @@ class PostImageRepository extends ServiceEntityRepository
         parent::__construct($registry, PostImage::class);
     }
 
+    /**
+     * @return Int Returns an nb total of imagePost associated to Post
+     */
+    public function countPostImages($postId)
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.post = :postId')
+            ->select('count(i.id)')
+            ->setParameter('postId', $postId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     // /**
     //  * @return PostImage[] Returns an array of PostImage objects
     //  */
