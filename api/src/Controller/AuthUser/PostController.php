@@ -7,6 +7,7 @@ use App\Entity\PostImage;
 use App\Service\Base64Service;
 use App\Repository\PostRepository;
 use App\Repository\CountryRepository;
+use App\Repository\PostImageRepository;
 use App\Serializer\Schema\PostSchema;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,7 @@ class PostController extends AbstractController
     private $validator;
     private $countryRepository;
     private $postRepository;
+    private $postImageRepository;
     private $base64Service;
     private $schema;
 
@@ -32,12 +34,14 @@ class PostController extends AbstractController
         EntityManager $manager,
         Validator $validator,
         PostRepository $postRepository,
+        PostImageRepository $postImageRepository,
         CountryRepository $countryRepository,
         PostSchema $schema
     ) {
         $this->manager = $manager;
         $this->validator = $validator;
         $this->postRepository = $postRepository;
+        $this->postImageRepository = $postImageRepository;
         $this->countryRepository = $countryRepository;
         $this->base64Service = new Base64Service();
         $this->schema = $schema;
@@ -141,6 +145,43 @@ class PostController extends AbstractController
             if ($violation->getMessage()) {
                 return new JsonResponse(["success" => false, "message" => $violation->getMessage()], 401);
             }
+        }
+
+        //save in db
+        $this->manager->persist($post);
+        $this->manager->flush();
+
+        return new JsonResponse(["success" => true], 201);
+    }
+
+    /**
+     * @Route("/{id}/add/image", methods={"POST"})
+     */
+    public function addImageToPost($id, Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        //get logged user
+        $loggedUser = $this->getUser();
+
+        //check if post exist
+        $post = $this->postRepository->findOneBy(["id" => $id, "createdBy" => $loggedUser->getId()]);
+        if (!$post) {
+            return new JsonResponse(["success" => false, "message" => "post not found"], 401);
+        }
+
+        //check nb total of imagePost associated to Post
+        $nbImagePosts = $this->postImageRepository->countPostImages($post->getId());
+        if ($nbImagePosts >= 5) {
+            return new JsonResponse(["success" => false, "message" => "post have already 5 images"], 401);
+        }
+
+        //check and decode base64, create PostImage and set attributes
+        $images = array();
+        $images['images'][] = $data;
+        $error = $this->decodeAndAddImage($images, $post);
+        if ($error) {
+            return new JsonResponse(["success" => false, "message" => $error], 401);
         }
 
         //save in db

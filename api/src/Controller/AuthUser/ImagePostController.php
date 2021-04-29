@@ -3,8 +3,6 @@
 namespace App\Controller\AuthUser;
 
 use App\Service\Base64Service;
-use App\Repository\PostRepository;
-use App\Repository\CountryRepository;
 use App\Repository\PostImageRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface as EntityManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Validator\Validator\ValidatorInterface as Validator;
 
 
 /**
@@ -21,25 +18,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface as Validator;
 class ImagePostController extends AbstractController
 {
     private $manager;
-    private $validator;
-    private $countryRepository;
-    private $postRepository;
     private $postImageRepository;
-    private $base64Service;
 
     public function __construct(
         EntityManager $manager,
-        Validator $validator,
-        PostRepository $postRepository,
-        PostImageRepository $postImageRepository,
-        CountryRepository $countryRepository
+        PostImageRepository $postImageRepository
     ) {
         $this->manager = $manager;
-        $this->validator = $validator;
-        $this->postRepository = $postRepository;
         $this->postImageRepository = $postImageRepository;
-        $this->countryRepository = $countryRepository;
-        $this->base64Service = new Base64Service();
     }
 
     /**
@@ -52,8 +38,11 @@ class ImagePostController extends AbstractController
         //get logged user
         $loggedUser = $this->getUser();
 
-        //fetch postImage
+        //fetch and check if postImage exist
         $image = $this->postImageRepository->find($id);
+        if (!$image) {
+            return new JsonResponse(["success" => false, "message" => "image not found"], 401);
+        }
 
         //verification of image owner
         if ($image->getPost()->getCreatedBy()->getId() !== $loggedUser->getId()) {
@@ -83,8 +72,11 @@ class ImagePostController extends AbstractController
         //get logged user
         $loggedUser = $this->getUser();
 
-        //fetch postImage
+        //fetch and check if postImage exist
         $image = $this->postImageRepository->find($id);
+        if (!$image) {
+            return new JsonResponse(["success" => false, "message" => "image not found"], 401);
+        }
 
         //fetch related post and verif of image owner
         $post = $image->getPost();
